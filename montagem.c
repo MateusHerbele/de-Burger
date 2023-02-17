@@ -7,28 +7,12 @@ e após isso eu consiga comparar os elementos da fila com um vetor para confirma
 #include "dbheader.h"
 
 int* locker = 0;
-
-struct local{
-    int x;
-    int y;
-};
-
-struct recipe{
-    int amountIng;
-    int ingredients[8];
-};
-
-struct player{
-    struct local local;
-    struct recipe recipe;
-};
-
 // Preencher com 0 o vetor da montagem
 //clearRecipe(player->recipe.ingredients); - No main
 
-//pão
-void kitchenPlaces(struct player* player){
 
+void kitchenPlaces(struct player* player){
+//pão
 if(player->local.x == 1 && player->local.y == 1 && locker == 0){
         addIngredient(player->recipe.ingredients, 1);
         *locker = 1;
