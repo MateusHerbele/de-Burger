@@ -7,7 +7,7 @@
 struct client* createClient(int id, struct order order);
 void addClient(struct list* list, struct client* client);
 void removeClient(struct list* list, struct client* client);
-void sortTime(struct order order);
+void sortTime(struct client client);
 int genNumIng(int numIng);
 
 

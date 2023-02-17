@@ -21,25 +21,30 @@ O que precisa ser feito é:
 #include "dbheader.h"
 #include<time.h>
 
+// Set da SEED do rand
+srand(time(NULL));
+
 // Estrutras dos pedidos ======================================================
+struct order{
+    int numIng;
+    int* ingredients;
+    ingredients; 
+    int deadline;// 30 segundos por pedido, pode ser alterado
+    int points;// 50 pontos por pedido entregue, pode ser alterado
+};
+
 struct client{
     int id;
     struct order order;
     int* nxtClient;
-    }
-
-struct order{
-    int numIng;
-    int* ingredients;= malloc (numIng*sizeof(int));
-    int deadline = 30;// 30 segundos por pedido, pode ser alterado
-    int points = 50;// 50 pontos por pedido entregue, pode ser alterado
-}
+};
 
 struct list{
     struct client* head;
     struct client* tail;
     int size;
-}
+};
+// =============================================================================
 
 struct list* createList(){
     struct list* newList = malloc(sizeof(struct list));
@@ -48,7 +53,6 @@ struct list* createList(){
     newList->size = 0;
     return newList;
 }
-// =============================================================================
 
 struct client* createClient(int id, struct order order){
     struct client* newClient = malloc(sizeof(struct client));
@@ -86,14 +90,34 @@ void removeClient(struct list* list, struct client* client){
     list->size--;
 }
 
-void sortTime(struct order order){
+void sortTime(struct client client){
     // função que ordena os pedidos de acordo com o tempo limite
+    struct client* aux;
+    int trades;
 
+    if(head == NULL){
+        return;
+    }
+    while(1){
+        aux = head;
+        trades = 0;
+        while(aux->nxtPedido != NULL){
+            if(aux->order->deadline > aux->nxtClient->order->deadline){
+                struct client* temp = aux->id;
+                aux->id = aux->nxtClient->id;
+                aux->nxtClient->id = temp;
+                trades++;
+            }
+            aux = aux->nxtPedido;
+        }
+        if(trades == 0){
+            return;
+        }
+    }
 }
 
 int genNumIng(int numIng){
     // função que gera um número aleatório de ingredientes entre 4 e 8
-    srand(tm_sec);
     return (rand() % 5 + 4);
 }
 
@@ -105,7 +129,6 @@ int genIngredients(int numIng){
 
     int gnr;
 
-    srand(tm_sec);
 
     for(int i = 1; i < numIng-1; i++){
         ing[i] = (rand() % 6 + 2);
