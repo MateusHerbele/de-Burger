@@ -19,32 +19,7 @@ O que precisa ser feito é:
 - Criar função que subtrai uma quantidade de pontos por pedidos expirados 
 */
 #include "dbheader.h"
-#include<time.h>
 
-// Set da SEED do rand
-srand(time(NULL));
-
-// Estrutras dos pedidos ======================================================
-struct order{
-    int numIng;
-    int* ingredients;
-    ingredients; 
-    int deadline;// 30 segundos por pedido, pode ser alterado
-    int points;// 50 pontos por pedido entregue, pode ser alterado
-};
-
-struct client{
-    int id;
-    struct order order;
-    int* nxtClient;
-};
-
-struct list{
-    struct client* head;
-    struct client* tail;
-    int size;
-};
-// =============================================================================
 
 struct list* createList(){
     struct list* newList = malloc(sizeof(struct list));
@@ -54,45 +29,44 @@ struct list* createList(){
     return newList;
 }
 
-struct client* createClient(int id, struct order order){
-    struct client* newClient = malloc(sizeof(struct client));
-    newClient->id = id;
-    newClient->order = order;
-    newClient->nxtClient = NULL;
-    return newClient;
+struct orderNode* createNode(int id, struct order order){
+    struct orderNode* newNode = malloc(sizeof(struct orderNode));
+    newNode->id = id;
+    newNode->nxtOrder = NULL;
+    return newNode;
 }
 
-void addClient(struct list* list, struct client* client){
+void addOrderNode(struct list* list, struct orderNode* orderNode){
     if(list->head == NULL){
-        list->head = client;
-        list->tail = client;
+        list->head = orderNode;
+        list->tail = orderNode;
     }
     else{
-        list->tail->nxtClient = client;
-        list->tail = client;
+        list->tail->nxtOrder = orderNode;
+        list->tail = orderNode;
     }
     list->size++;
 }
 
-void removeClient(struct list* list, struct client* client){
-    struct client* aux = list->head;
-    if(aux == client){
-        list->head = aux->nxtClient;
+void removeOrderNode(struct list* list, struct orderNode* orderNode){
+    struct orderNode* aux = list->head;
+    if(aux == orderNode){
+        list->head = aux->nxtOrder;
         free(aux);
     }
     else{
-        while(aux->nxtClient != client){
-            aux = aux->nxtClient;
+        while(aux->nxtOrder != orderNode){
+            aux = aux->nxtOrder;
         }
-        aux->nxtClient = client->nxtClient;
-        free(client);
+        aux->nxtOrder = orderNode->nxtOrder;
+        free(orderNode);
     }
     list->size--;
 }
 
-void sortTime(struct client client){
+void sortTime(struct orderNode* head){
     // função que ordena os pedidos de acordo com o tempo limite
-    struct client* aux;
+    struct orderNode* aux;
     int trades;
 
     if(head == NULL){
@@ -101,14 +75,14 @@ void sortTime(struct client client){
     while(1){
         aux = head;
         trades = 0;
-        while(aux->nxtPedido != NULL){
-            if(aux->order->deadline > aux->nxtClient->order->deadline){
-                struct client* temp = aux->id;
-                aux->id = aux->nxtClient->id;
-                aux->nxtClient->id = temp;
+        while(aux->nxtOrder != NULL){
+            if(aux->id->deadline > aux->nxtOrder->id->deadline){
+                struct orderNode* temp = aux->id;
+                aux->id = aux->nxtOrder->id;
+                aux->nxtOrder->id = temp;
                 trades++;
             }
-            aux = aux->nxtPedido;
+            aux = aux->nxtOrder;
         }
         if(trades == 0){
             return;
@@ -129,7 +103,6 @@ int genIngredients(int numIng){
 
     int gnr;
 
-
     for(int i = 1; i < numIng-1; i++){
         ing[i] = (rand() % 6 + 2);
     }
@@ -142,6 +115,3 @@ struct order* createOrder(int numIng, int* ingredients){
     newOrder->ingredients = genIngredients(numIng);
     return newOrder;
 }
-
-
-
