@@ -11,41 +11,41 @@ int* locker = 0;
 //clearRecipe(player->recipe.ingredients); - No main
 
 
-void kitchenPlaces(struct player* player){
+void kitchenPlaces(struct player* player, int* amountOfOrders, struct list* list){
 //pão
 if(player->local.x == 1 && player->local.y == 1 && locker == 0){
-        addIngredient(player->recipe.ingredients, 1);
+        addIngredient(player, 1);
         *locker = 1;
 }
 //hamburguer)
 if(player->local.x == 1 && player->local.y == 1 && locker == 0){
-        addIngredient(player->recipe.ingredients, 2);
+        addIngredient(player, 2);
         *locker = 1;
 }
 //alface
 if(player->local.x == 1 && player->local.y == 1 && locker == 0){ 
-        addIngredient(player->recipe.ingredients, 3);
+        addIngredient(player, 3);
         *locker = 1;
 }
 //tomate
 if(player->local.x == 1 && player->local.y == 1 && locker == 0){
-        addIngredient(player->recipe.ingredients, 4);
+        addIngredient(player, 4);
         *locker = 1;
 }
 //queijo
 if(player->local.x == 1 && player->local.y == 1 && locker == 0){
-        addIngredient(player->recipe.ingredients, 5);
+        addIngredient(player, 5);
         *locker = 1;
 }
 //cebola
 if(player->local.x == 1 && player->local.y == 1 && locker == 0){
-        addIngredient(player->recipe.ingredients, 6);
+        addIngredient(player, 6);
         *locker = 1;
 }
 
 // aqui o player envia o pedido:
 if(player->local.x == 1 && player->local.y == 1 && locker == 0){
-        verifyOrder(player->recipe.ingredients);
+        verifyOrder(player, player->recipe.ingredients, amountOfOrders, list);
         *locker = 1;
 }
 // aqui o player descarta a montagem:
