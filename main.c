@@ -173,10 +173,7 @@ int lastTime = time(NULL);
             // Logo
            // drawLogo(h, w, logoWSize, logoHSize, menuLogo, pHud);
 
-            ///////////
-            // Items
-            //////////
-            // Item start game
+           //start game
           int selectStartGame;
             if (menuItem == 0) {
                 selectStartGame = 0;
@@ -201,8 +198,8 @@ int lastTime = time(NULL);
             }
             //mvprintw(h/2 - logoHSize + 13, w/2 - strLen(exitGame[selectExit])/2, exitGame[selectExit]);
 
-            // By dev
-            mvprintw(h-2, 2, "Develop: uriid1");
+           
+            mvprintw(h-2, 2, "Devenvolvido por: Mateus Herbele");
 
             // Draw box
             attron(COLOR_PAIR(pHud));
@@ -273,11 +270,11 @@ int lastTime = time(NULL);
             exit(1);
         }
 
-        // Exit to menu
+        // Volta pro menu
         if (keyEvent == 'q')
             currentState->STATE_MENU = 1;
 
-        // Get key pressed
+        // key events
         keyEvent = wgetch(stdscr);
         napms(100);
         keyEvent = wgetch(stdscr);
