@@ -29,9 +29,10 @@ struct list* createList(){
     return newList;
 }
 
-struct orderNode* createNode(int id, struct order order){
+struct orderNode* createNode(int* id, struct order* order, int* amountOfOrders){
     struct orderNode* newNode = malloc(sizeof(struct orderNode));
-    newNode->id = id;
+    newNode->id = malloc(sizeof(struct order));
+    newNode->id->numClient = (*amountOfOrders)++;
     newNode->nxtOrder = NULL;
     return newNode;
 }
@@ -48,21 +49,28 @@ void addOrderNode(struct list* list, struct orderNode* orderNode){
     list->size++;
 }
 
-void removeOrderNode(struct list* list, struct orderNode* orderNode){
+int removeOrderNode(struct list* list, struct orderNode* orderNode) {
     struct orderNode* aux = list->head;
-    if(aux == orderNode){
-        list->head = aux->nxtOrder;
-        free(aux);
-    }
-    else{
-        while(aux->nxtOrder != orderNode){
-            aux = aux->nxtOrder;
+    struct orderNode* prev = NULL;
+    
+    while (aux != NULL) {
+        if (aux == orderNode) {
+            if (prev == NULL) {
+                list->head = aux->nxtOrder;
+            }
+            else {
+                prev->nxtOrder = aux->nxtOrder;
+            }
+            free(aux);
+            list->size--;
+            return 1;
         }
-        aux->nxtOrder = orderNode->nxtOrder;
-        free(orderNode);
+        prev = aux;
+        aux = aux->nxtOrder;
     }
-    list->size--;
+    return 0;
 }
+
 
 void sortTime(struct orderNode* head){
     // função que ordena os pedidos de acordo com o tempo limite
@@ -77,9 +85,10 @@ void sortTime(struct orderNode* head){
         trades = 0;
         while(aux->nxtOrder != NULL){
             if(aux->id->deadline > aux->nxtOrder->id->deadline){
-                struct orderNode* temp = aux->id;
+                struct orderNode* temp;
+                temp->id = aux->id;
                 aux->id = aux->nxtOrder->id;
-                aux->nxtOrder->id = temp;
+                aux->nxtOrder->id = temp->nxtOrder->id;
                 trades++;
             }
             aux = aux->nxtOrder;
@@ -90,12 +99,12 @@ void sortTime(struct orderNode* head){
     }
 }
 
-int genNumIng(int numIng){
+int genNumIng(){
     // função que gera um número aleatório de ingredientes entre 4 e 8
     return (rand() % 5 + 4);
 }
 
-int genIngredients(int numIng){
+int* genIngredients(int numIng){
     // função que gera um vetor de ingredientes aleatórios
     int* ing = malloc (numIng*sizeof(int));
     ing[0] = 1;
@@ -109,9 +118,41 @@ int genIngredients(int numIng){
     return ing;
 }
 
-struct order* createOrder(int numIng, int* ingredients){
+struct order* createOrder(){
     struct order* newOrder = malloc(sizeof(struct order));
-    newOrder->numIng = genNumIng(numIng);
-    newOrder->ingredients = genIngredients(numIng);
+    newOrder->numIng = genNumIng();
+    newOrder->ingredients = genIngredients(newOrder->numIng);
+    switch(newOrder->numIng){
+        case 4:
+            newOrder->deadline = 30;
+            newOrder->score = 50;
+            break;
+        case 5:
+            newOrder->deadline = 35;
+            newOrder->score = 55;
+            break;
+        case 6:
+            newOrder->deadline = 40;
+            newOrder->score = 60;
+            break;
+        case 7:
+            newOrder->deadline = 45;
+            newOrder->score = 65;
+            break;
+        case 8:
+            newOrder->deadline = 50;
+            newOrder->score = 70;
+            break;
+    }
     return newOrder;
+}
+
+void freeOrders(struct list* list){
+    struct orderNode* aux = list->head;
+    while(aux != NULL){
+        struct orderNode* temp = aux->nxtOrder;
+        free(aux);
+        aux = temp;
+    }
+    free(list);
 }
