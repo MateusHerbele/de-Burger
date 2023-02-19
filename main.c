@@ -234,17 +234,14 @@ int lastTime = time(NULL);
             currentState->STATE_MENU = 0;
             static int len_xoff = 31;
             static int len_yoff = 2;
-            mvprintw(h/2-len_yoff,   w/2-len_xoff, "This is a small game written in C.");
-            mvprintw(h/2-len_yoff+1, w/2-len_xoff, "Your task is to collect all the apples while avoiding enemies.");
-            mvprintw(h/2-len_yoff+2, w/2-len_xoff, "I wrote this game just for fun :)");
-            mvprintw(h/2-len_yoff+3, w/2-len_xoff, "I do not recommend using the source code for learning C.");
-            mvprintw(h/2-len_yoff+4, w/2-len_xoff, "Have a good game!");
+            mvprintw(h/2-len_yoff,   w/2-len_xoff, "Mateus Herbele - Trabalho final ");
+            mvprintw(h/2-len_yoff+1, w/2-len_xoff, "Programação de computadores I");
 
             // To menu
-            mvprintw(h-4, w/2-ceil(len_xoff/2), "press 'q' to exit menu");
+            mvprintw(h-4, w/2-ceil(len_xoff/2), "Pressione Q para sair do menu");
 
             // By dev
-            mvprintw(h-2, 2, "Develop: uriid1");
+            mvprintw(h-2, 2, "Desenvolvido por: Mateus Herbele");
 
             box(stdscr, 0, 0);
         }
