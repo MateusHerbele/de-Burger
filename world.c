@@ -439,7 +439,7 @@ void actionsPlayer(int h, int w, int keyPressed, int* p_score, struct queue* p_q
             case 2:
                 whap = kitchenInit(p_player, keyPressed, p_score, p_dir_x, p_dir_y, END, w, h);
                 drawHud(p_score, p_queue, p_stack);
-                if(time(NULL) - lastTime > 15){
+                if(time(NULL) - lastTime >= 10){
                     lastTime = time(NULL);
                     p_data = genElements();
                     enqueue(p_queue, p_data);
@@ -515,8 +515,10 @@ void actionsPlayer(int h, int w, int keyPressed, int* p_score, struct queue* p_q
         }
         // volta pro menu
         if(keyPressed == 'q'){
-            lastTime = 0;
+            lastTime = time(NULL) - 11;
             *p_score = 11;
+            p_player->x = 5;
+            p_player->y = 6;
             clearStack(p_stack);
             clearQueue(p_queue);
             gameStates = 0;
