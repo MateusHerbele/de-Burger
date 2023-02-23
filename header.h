@@ -12,21 +12,21 @@
 // Structs da stack
 struct node{
     char data; //dados do nó
-    struct node *next;
+    struct node *next; //ponteiro para o próximo nó
 };
 struct stack{
-    struct node *top;
+    struct node *top; //ponteiro para o topo da pilha
 };
 
 // Structs da queue
 struct nodeDup{ // nó duplamente encadeado
     char* data; //dados do nó
-    struct nodeDup *next;
-    struct nodeDup *prev;
+    struct nodeDup *next; //ponteiro para o próximo nó
+    struct nodeDup *prev; //ponteiro para o nó anterior
 };
 struct queue{
-    struct nodeDup *first;
-    struct nodeDup *last;
+    struct nodeDup *first; //ponteiro para o primeiro nó
+    struct nodeDup *last; //ponteiro para o último nó
 };
 
 //funções da stack
@@ -59,6 +59,8 @@ char* queueFirst(struct queue* queue);
 //gera um número de elementos totais para data, sendo no mínimo 3 e no máximo 8, e coloca os elementos dentro de data.
 //tem que começar com 1 e terminar com 1 e os elementos entre o começoe e o final variam de 2 - 7
 char* genElements();
+// é igual a endqueue mas n da free na fila
+void clearQueue(struct queue* queue);
 // termina a fila, da free em tudo que foi alocado nela e seus nós
 void endQueue(struct queue* queue);
 //verifica se está vazia
@@ -66,11 +68,11 @@ int isEmptyQueue(struct queue* queue);
 //imprime a fila 
 void printQueue(struct queue* orderList);
 
-// struck do verify
+// struck dos objetos
 struct classObj{
-    char symbol[20];
-    int hsp, vsp;
-    int x, y;
+    char symbol[2];
+    int hsp, vsp; // "velocidade" vertical e  horizontal do player, só ele se move então só ele usa
+    int x, y; // posição do objeto / player
 };
 
 // index dos objetos, pra por na matriz e chamar eles dai
@@ -127,26 +129,26 @@ void drawKitchen(short lvl[][13], struct classObj* player, int w, int h);
 // atualiza o jogo
 char gameUpdate(int key, short current_lvl[][13], int* p_score, struct classObj* player, int* dir_x, int* dir_y, bool* EXIT, int w, int h);
 // inicia a cozinha
-char kitchenInit(short index_lvl, struct classObj* player, int keyPressed, short kitchen[12][13], int* p_score, int* dir_x, int* dir_y, bool* EXIT, int w, int h);
+char kitchenInit(struct classObj* player, int keyPressed, int* p_score, int* dir_x, int* dir_y, bool* EXIT, int w, int h);
 // precisa setar as cores dos objetos
 void setColor();
 // desenha os objetos
 void drawInstance(int y, int x, int color, char name[], int w, int h) ;
 //desenha a hud
 void drawHud(int* p_score, struct queue* queue,struct stack* stack);
-
 // Game Over
 void gameOver();
-
-// set obj Parametrs
+// spawna o objeto e passa os parâmetros do objeto para ele
 void objInit(struct classObj *obj, int x, int y, int dir, char *objname);
-
-// Get char len
+// pega o tamanho de uma string
 int strLen(char* str);
-
-// Get logo len
+// retorna o tamanaho da largura de cada linha do logo
 int getLogoWSize(int logoHSize, char** menuLogo);
-
-void drawLogo(int h, int w, int logoWSize, int logoHSize, char** menuLogo);
+// desenha o logo
+void drawLogo(int h, int w);
+// desenha as infos
+void drawInfo(int h, int w, int x, int y);
+// faz as ações do jogador, seja no jogo ou no menu
+void actionsPlayer(int h, int w, int keyPressed, int* p_score, struct queue* p_queue, struct stack* p_stack, struct classObj* p_player, bool* END, char* p_data);
 
 #endif
