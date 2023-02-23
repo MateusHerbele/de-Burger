@@ -280,7 +280,6 @@ int getLogoWSize(int logoHSize, char** menuLogo){
 }
 
 void drawLogo(int h, int w){
-    // Get w size
      char *menuLogo[11] = {
     " /$$$$$$$                    /$$$$$$$",
     "| $$__  $$                  | $$__  $$",
