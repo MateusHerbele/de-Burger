@@ -1,10 +1,5 @@
 #include "header.h"
 int main(){
-    // score
-    int score;
-    int* p_score;
-    p_score = &score;
-    score = 11;
     //dados gerados
     char data;
     char* p_data;
@@ -50,7 +45,7 @@ int main(){
     leaveok(stdscr, TRUE);//não impede que o cursor saia da janela de execução
     curs_set(0); //desativa a exibição do cursor na execução
 
-    actionsPlayer(h, w, keyPressed, p_score, p_queue, p_stack, p_player, p_exit, p_data);
+    actionsPlayer(h, w, keyPressed, p_queue, p_stack, p_player, p_exit, p_data);
     //int h, int w, int keyPressed, int* p_score, struct queue* p_queue, struct stack* p_stack, struct classObj* p_player, bool* END, int* p_data
 
     // fecha a janela do curses e da free na memoria

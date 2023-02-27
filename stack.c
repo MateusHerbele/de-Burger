@@ -72,9 +72,9 @@ void printStack(struct stack* stack){
     }
 
     // Imprime os elementos na tela, do último ao primeiro
-    int column = 25;
+    int column = 69;
     for (int i = size-1; i >= 0; i--){
-        mvprintw(2, column, "%c ", elements[i]);
+        mvprintw(4, column, "%c ", elements[i]);
         column++;
     }
 

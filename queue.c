@@ -1,6 +1,6 @@
 #include "header.h"
 //enfileirar
-void enqueue(struct queue* queue, char* data){
+void enqueue(struct queue* queue, char* data, int num){
     if(queue == NULL) {
         printf("Erro: ponteiro 'queue' é nulo.\n");
         exit(1);
@@ -15,6 +15,7 @@ void enqueue(struct queue* queue, char* data){
         exit(1);
     }
     newNode->data = data;
+    newNode->num = num;
     newNode->next = NULL;//nó novo é o último da fila então o next dele é NULL
     if(queue->last != NULL){ // se a fila não estiver vazia
         newNode->prev = queue->last; // o prev do novo nó é o last da fila
@@ -55,42 +56,94 @@ char* queueFirst(struct queue* queue){
     }
     return queue->first->data;
 }
-//gera um número de elementos totais para data, sendo no mínimo 3 e no máximo 8, e coloca os elementos dentro de data.
-//tem que começar com 1 e terminar com 1 e os elementos entre o começoe e o final variam de 2 - 6
+//gera um número de uma refeição
 char* genElements(){
-    srand(time(NULL));
-    int totalElements = rand() % 6 + 3;
-    int* data = malloc(totalElements * sizeof(int));
-    if(data == NULL){
-        printf("Erro: falha ao alocar memória para 'data'.\n");
-        exit(1);
+    int meal = rand() % 6 + 1;
+    switch(meal){
+        case 1: //x-burger
+            char* data1 = malloc(5*sizeof(char));
+            if(data1 == NULL){
+                printf("Erro: falha ao alocar memória para 'data1'.\n");
+                exit(1);
+            }
+            data1[0] = 1;
+            data1[1] = 'P'; //pHQP
+            data1[2] = 'Q';
+            data1[3] = 'H';
+            data1[4] = 'p';
+            return data1;
+        break;
+        case 2: //x-salada
+            char* data2 = malloc(5*sizeof(char));
+            if(data2 == NULL){
+                printf("Erro: falha ao alocar memória para 'data2'.\n");
+                exit(1);
+            }
+            data2[0] = 2;
+            data2[1] = 'P'; //pHSP
+            data2[2] = 'S';
+            data2[3] = 'H';
+            data2[4] = 'p';
+            return data2;
+        break;
+        case 3: //combo 1
+            char* data3 = malloc(7*sizeof(char));
+            if(data3 == NULL){
+                printf("Erro: falha ao alocar memória para 'data3'.\n");
+                exit(1);
+            }
+            data3[0] = 3;
+            data3[1] = 'R'; //pHQPFR
+            data3[2] = 'F';
+            data3[3] = 'P';
+            data3[4] = 'Q';
+            data3[5] = 'H';
+            data3[6] = 'p';
+            return data3;
+        break;
+        case 4: //combo 2
+            char* data4 = malloc(7*sizeof(char));
+            if(data4 == NULL){
+                printf("Erro: falha ao alocar memória para 'data4'.\n");
+                exit(1);
+            }
+            data4[0] = 4;
+            data4[1] = 'R'; //pHSPFR
+            data4[2] = 'F';
+            data4[3] = 'P';
+            data4[4] = 'S';
+            data4[5] = 'H';
+            data4[6] = 'p';
+            return data4;
+        break;
+        case 5: //vegetariano
+            char* data5 = malloc(6*sizeof(char));
+            if(data5 == NULL){
+                printf("Erro: falha ao alocar memória para 'data5'.\n");
+                exit(1);
+            }
+            data5[0] = 5;
+            data5[1] = 'R'; //pQPFR
+            data5[2] = 'F';
+            data5[3] = 'P';
+            data5[4] = 'Q';
+            data5[5] = 'p';
+            return data5;
+        break;
+        case 6: //vegano
+            char* data6 = malloc(4*sizeof(char));
+            if(data6 == NULL){
+                printf("Erro: falha ao alocar memória para 'data6'.\n");
+                exit(1);
+            }
+            data6[0] = 6;
+            data6[1] = 'R'; //SFR
+            data6[2] = 'F';
+            data6[3] = 'S';
+            return data6;
+        break;
     }
-    for(int i = 1; i < totalElements; i++){
-        data[i] = rand() % 5 + 2;
-    }
-    char* characters = malloc(totalElements * sizeof(char));
-    characters[0] = 'P';
-    characters[totalElements-1] = 'P';
-    for(int i = 1; i < totalElements-1; i++){
-        switch(data[i]){
-            case 2:
-                characters[i] = 'H';
-                break;
-            case 3:
-                characters[i] = 'A';
-                break;
-            case 4:
-                characters[i] = 'T';
-                break;
-            case 5:
-                characters[i] = 'Q';
-                break;
-            case 6:
-                characters[i] = 'C';
-                break;
-        }
-    }
-    return characters;
+    return 0; // pra evitar o wall, mas sempre entra no switch
 }
 // limpa a fila é igual a endQueue mas não da free na fila
 void clearQueue(struct queue* queue){
@@ -121,23 +174,37 @@ int isEmptyQueue(struct queue* queue){
     }
     return 0;
 }
-// printa a fila
-void printQueue(struct queue* orderList){
+void printQueue(struct queue* orderList, int* numOfCLients){
     struct nodeDup* current = orderList->first;
-    int linha = 3;
+    int linha = 4;
     while(current != NULL){
-        if(current->data[0] == 'P' && current->data[strlen(current->data)-1] == 'P'){
-            // Inverte a string current->data
-            char inverted[strlen(current->data) + 1]; // Array de char temporário para armazenar a string invertida
-            int i, j;
-            for(i = strlen(current->data) - 1, j = 0; i >= 0; i--, j++){
-                inverted[j] = current->data[i];
-            }
-            inverted[j] = '\0'; // Adiciona o caractere nulo no final da string
-            // Imprime a string invertida
-            mvprintw(linha, 2, "%s", inverted);
-            linha++;
+        switch(current->data[0]){
+            case 1:
+                mvprintw(linha, 3, "CLIENTE %d:X-Burger: pHQP", current->num);
+                linha++;
+            break;
+            case 2:
+                mvprintw(linha, 3, "CLIENTE %d:X-Salada: pHSP", current->num);
+                linha++;
+            break;
+            case 3:
+                mvprintw(linha, 3, "CLIENTE %d:Combo 1: pHQPFR", current->num);
+                linha++;
+            break;
+            case 4:
+                mvprintw(linha, 3, "CLIENTE %d:Combo 2: pHSPFR", current->num);
+                linha++;
+            break;
+            case 5:
+                mvprintw(linha, 3, "CLIENTE %d:Vegetariano: pQPFR", current->num);
+                linha++;
+            break;
+            case 6:
+                mvprintw(linha, 3, "CLIENTE %d:Vegano: SFR", current->num);
+                linha++;
+            break;
         }
+        if(linha == 9) break; // pra imprimir só 5 por vez, começa na linha 4 + 5 = 9
         current = current->next;
     }
 }

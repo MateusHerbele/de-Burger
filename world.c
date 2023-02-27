@@ -2,7 +2,7 @@
 
 // Essa função compara o primeiro elemento da fila com a pilha inteira
 int verifyOrder(struct stack* stack, struct queue* queue){
-    int i = 0;
+    int i = 1;
     char* first = queueFirst(queue); // Pega o primeiro elemento da fila
     struct node* temp = stack->top; // Pega o topo da pilha
     while(temp != NULL) { // Enquanto não chegar no final da pilha
@@ -12,12 +12,14 @@ int verifyOrder(struct stack* stack, struct queue* queue){
         }
         else{// Se o elemento da pilha for diferente do elemento da fila
             clearStack(stack);
+            deQueue(queue);
             return 0;
         }
     }
     if(isEmptyQueue(queue) || stack->top == NULL){ // Se a fila estiver vazia ou a pilha estiver vazia
         clearStack(stack);
-        return 0;// Retorna 0
+        deQueue(queue);
+        return 0;
     } else {
         clearStack(stack);
         deQueue(queue);
@@ -77,7 +79,9 @@ void playerMove(int key, struct classObj* player, int* dir_x, int* dir_y){
 }
 
 // Collsiion
-char playerCollision(short current_lvl[][13], struct classObj* player){
+void playerCollision(short current_lvl[][13], struct classObj* player, struct stack* p_stack, struct queue* p_queue, int* areaLocker, bool* END, int* loseConditionOne, int* loseConditionTwo, int* score){
+        int deliver = 0;
+        
         for (int y = 0; y < 12; y++){
             for (int x = 0; x < 13; x++){
         switch(current_lvl[player->y][player->x]){
@@ -85,47 +89,79 @@ char playerCollision(short current_lvl[][13], struct classObj* player){
             case i_wall:    // wall
                 player->x -= player->hsp;
                 player->y -= player->vsp;
-                return 0;
             break;
-
             case i_bread:    //adiciona ingrediente
-                return 'P';
+             if(*areaLocker == 0){
+                push(p_stack, 'P');
+                *areaLocker = 1;   
+                }
             break;
-
+            case i_breadBottom:  
+             if(*areaLocker == 0){
+                push(p_stack, 'p');
+                *areaLocker = 1;   
+                }
+            break;
             case i_hamburguer:    
-                return 'H';
+             if(*areaLocker == 0){
+                push(p_stack, 'H');
+                *areaLocker = 1;   
+                }
             break;
-
-            case i_lettuce:    
-                return 'A';
+            case i_salad:    
+             if(*areaLocker == 0){
+                push(p_stack, 'S');
+                *areaLocker = 1;   
+                }
             break;
-
-            case i_tomato:    
-                return 'T';
-            break;
-            
             case i_cheese:    
-                return 'Q';
+             if(*areaLocker == 0){
+                push(p_stack, 'Q');
+                *areaLocker = 1;   
+                }
             break;
-
-            case i_onion:   
-                return 'C';
+            case i_fries:
+             if(*areaLocker == 0){
+                push(p_stack, 'F');
+                *areaLocker = 1;   
+                }
             break;
-
+            case i_coca:
+             if(*areaLocker == 0){
+                push(p_stack, 'R');
+                *areaLocker = 1;   
+                }
+            break;
             case i_deliver:   
-                return 'V';
-            break;
+                    if(*areaLocker == 0){
+                    deliver = verifyOrder(p_stack, p_queue);
+                    if(deliver == 1){
+                        *score += 1;
+                        if(isEmptyQueue(p_queue)){
+                            *END = true;
+                            endwin();
+                            printf("Você ganhou! Seu score foi de %d!\n", *score);
 
+                        }
+                    }else{
+                        *loseConditionOne += 1;
+                    }
+                    *areaLocker = 1;
+                    }                       
+                    break;
             case i_discart:   
-                return 'X';
+                if(*areaLocker == 0){
+                    *loseConditionTwo += 1;
+                    clearStack(p_stack);    
+                    *areaLocker = 1;
+                        }
             break;
 
             default:
-                return -1;
+                *areaLocker = 0;
             }
         }
     }
-    return -1;
 }   
 
 // desenha a cozinha
@@ -137,10 +173,11 @@ void drawKitchen(short kitchen[][13], struct classObj* player, int w, int h){
                 case i_wall:   drawInstance(y, x, c_wall,  s_wall, w, h);  break;
                 case i_hamburguer: drawInstance(y, x, c_hamburguer, s_hamburguer, w, h); break;
                 case i_bread: drawInstance(y, x, c_bread, s_bread, w, h); break;
-                case i_lettuce: drawInstance(y, x, c_lettuce, s_lettuce, w, h); break;
+                case i_breadBottom: drawInstance(y, x, c_breadBottom, s_breadBottom, w, h); break;
+                case i_salad: drawInstance(y, x, c_salad, s_salad, w, h); break;
                 case i_cheese: drawInstance(y, x, c_cheese, s_cheese, w, h); break;
-                case i_tomato: drawInstance(y, x, c_tomato, s_tomato, w, h); break;
-                case i_onion: drawInstance(y, x, c_onion, s_onion, w, h); break;
+                case i_fries: drawInstance(y, x, c_fries, s_fries, w, h); break;
+                case i_coca: drawInstance(y, x, c_coca, s_coca, w, h); break;
                 case i_deliver: drawInstance(y, x, c_deliver, s_deliver, w, h); break;
                 case i_discart: drawInstance(y, x, c_discart, s_discart, w, h); break;
                 
@@ -156,68 +193,65 @@ void drawKitchen(short kitchen[][13], struct classObj* player, int w, int h){
     }
 }
 // Update game
-char gameUpdate(int key, short current_lvl[][13], int* p_score, struct classObj* player, int* dir_x, int* dir_y, bool* EXIT, int w, int h){
+void gameUpdate(int key, short current_lvl[][13], struct stack* p_stack, struct queue* p_queue, struct classObj* player, int* dir_x, int* dir_y, int w, int h, bool* END, int* areaLocker, int* loseConditionOne, int* loseConditionTwo, int* score){
     // Player
     playerMove(key, player, dir_x, dir_y);
-    char collision = playerCollision(current_lvl, player);
-
+    playerCollision(current_lvl, player, p_stack, p_queue, areaLocker, END, loseConditionOne, loseConditionTwo, score);
+    //short current_lvl[][13], struct classObj* player, struct stack* p_stack, struct queue* p_queue, int* p_score, int* areaLocker, bool* END){
     // Desenha a cozinha
     drawKitchen(current_lvl, player, w, h);
 
     // Game Over
-    if(*p_score <= 0)
-        gameOver(EXIT);
-
-    return collision;
+    if(*loseConditionOne == 3 || *loseConditionTwo == 5)
+        gameOver(END);
 }
 
 // Init lvl
-char kitchenInit(struct classObj* player, int keyPressed, int* p_score, int* dir_x, int* dir_y, bool* EXIT, int w, int h){
+void kitchenInit(struct classObj* player, struct stack* p_stack, struct queue* p_queue, int keyPressed, int* dir_x, int* dir_y, bool* END, int w, int h, int* areaLocker, int* loseConditionOne, int* loseConditionTwo, int* score){
     //matriz da cozinha
     short kitchen[12][13] = {
     { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-    { 1, 2, 2, 2, 0, 3, 3, 3, 0, 4, 4, 4, 1},
-    { 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 1},
-    { 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 1},
+    { 1, 2, 2, 2, 0, 3, 3, 3, 0, 6, 6, 6, 1},
+    { 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 1},
+    { 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 1},
     { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    { 1, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 1},
-    { 1, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 1},
-    { 1, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 1},
+    { 1, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 13, 1},
+    { 1, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 13, 1},
+    { 1, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 13, 1},
     { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
     { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    { 1, 7, 7, 0, 0, 8, 0, 9, 0, 0, 6, 6, 1},
+    { 1, 11,11, 0, 0, 8, 0, 9, 0, 0, 12, 12, 1},
     { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
 };
-    static bool init = true; // primeiro inicia o player dps a cozinha
-    char required; 
+    static bool init = true; // primeiro inicia o player dps a cozinha 
 
     if(!init){
-            required = gameUpdate(keyPressed, kitchen, p_score, player, dir_x, dir_y, EXIT, w, h);   
-        return required;
+        gameUpdate(keyPressed, kitchen, p_stack, p_queue, player, dir_x, dir_y, w, h, END, areaLocker, loseConditionOne, loseConditionTwo, score);   
+        return;
     }
     // Player
-            player->x = 5;
+            player->x = 6;
             player->y = 6;
             init = false;
-            return 0;
 }
 
 // Set color
 void setColor(){
     start_color();
-    init_pair(c_wall,   COLOR_WHITE,     COLOR_BLACK);
+    init_pair(c_wall,   COLOR_WHITE,     COLOR_RED);
     init_pair(c_bread,  COLOR_YELLOW,    COLOR_BLACK);
+    init_pair(c_breadBottom,  COLOR_YELLOW,    COLOR_BLACK);
     init_pair(c_hamburguer,   COLOR_RED,      COLOR_BLACK);   
-    init_pair(c_lettuce,  COLOR_GREEN,    COLOR_BLACK);
-    init_pair(c_tomato,   COLOR_RED,    COLOR_BLACK);
+    init_pair(c_salad,  COLOR_GREEN,     COLOR_BLACK);
     init_pair(c_cheese, COLOR_YELLOW,  COLOR_BLACK);
-    init_pair(c_onion, COLOR_MAGENTA,    COLOR_BLACK);
+    init_pair(c_fries, COLOR_YELLOW, COLOR_BLACK);
+    init_pair(c_coca, COLOR_CYAN, COLOR_BLACK);
     init_pair(c_deliver,  COLOR_GREEN,      COLOR_BLACK);
     init_pair(c_discart,    COLOR_RED,   COLOR_BLACK);
 }
 
 
-void drawInstance(int y, int x, int color, char name[], int w, int h){
+void drawInstance(int y, int x, int color, char skin[], int w, int h){
     attron(COLOR_PAIR(color));
 
     // Win offset
@@ -226,22 +260,25 @@ void drawInstance(int y, int x, int color, char name[], int w, int h){
     
     // Level offset
     int lvl_xoffset = (13/2)*symbol_count+(13%2);
-    int lvl_yoffset = (12+(td_indent*2))/2-(1 /* +1 indent hud */+(12%2));
+    int lvl_yoffset = (12+(td_indent*2))/2-(1 /* +1 hud */+(12%2));
 
     mvprintw(
-        /* Y pos */ ceil(win_yoffset - lvl_yoffset) + (y+td_indent), 
-        /* X pos */ ceil(win_xoffset - lvl_xoffset) + (x*symbol_count), 
-        /* S pos */ name
+        /* Y pos */ ceil(win_yoffset - lvl_yoffset) + (y+td_indent), //função teto
+        /* X pos */ ceil(win_xoffset - lvl_xoffset) + (x*symbol_count), //gunção teto
+        /* S pos */ skin
     );
     attroff(COLOR_PAIR(color));
 }
 
 // Hud
-void drawHud(int* p_score, struct queue* queue, struct stack* stack){
-    mvprintw(1, 2, "SCORE: %d\n", *p_score);
-    mvprintw(2, 2, "PEDIDOS: \n");
-    mvprintw(1, 25, "MONTAGEM: \n" );
-    printQueue(queue);
+void drawHud(struct queue* queue, struct stack* stack, int* numOfClients, int* loseConditionOne, int* loseConditionTwo, int* p_score, int h, int w){
+    mvprintw(1, 3, "ENTREGAS ERRADAS: %d/3\n", *loseConditionOne);
+    mvprintw(2, 3, "NUMERO(S) DE DESCARTE(S): %d/5", *loseConditionTwo);
+    mvprintw(3, 3, "PEDIDOS: \n");
+    mvprintw(4, 60, "MONTAGEM: \n" );
+    mvprintw(1, 60,"SCORE: %d\n", *p_score);
+    mvprintw(h-2, 2, "Pressione 'q' para restartar\n");
+    printQueue(queue, numOfClients);
     printStack(stack);
 }
 
@@ -311,14 +348,14 @@ void drawInfo(int h, int w, int x, int y){
                 mvprintw(h/2-y+5, w/2-x, "Cada entrega errada subtrai 10 pontos e cada entrega certa soma 15 pontos");
 
                 // menu
-                mvprintw(h-4, w/2-ceil(x/2), "'q' to exit to menu"); // ceil arrenonda pra cima
+                mvprintw(h-4, w/2-ceil(x/2), "Pressione 'q' para voltar ao menu"); // ceil arrenonda pra cima
 
                 mvprintw(h-2, 2, "Mateus Herbele");
 
                 box(stdscr, 0, 0);
 }
 
-void actionsPlayer(int h, int w, int keyPressed, int* p_score, struct queue* p_queue, struct stack* p_stack, struct classObj* p_player, bool* END, char* p_data){
+void actionsPlayer(int h, int w, int keyPressed, struct queue* p_queue, struct stack* p_stack, struct classObj* p_player, bool* END, char* p_data){
    //verifica se tem cores
     if(!has_colors()){
         endwin();
@@ -333,13 +370,13 @@ void actionsPlayer(int h, int w, int keyPressed, int* p_score, struct queue* p_q
     gameStates = 3 -> exit
     */
     // Incia o player
-    objInit(p_player, 5 , 5, 0, "&");
+    objInit(p_player, 6 , 6, 0, "&");
     // impede que fique pegando várias vezes o mesmo elemento quando se está em uma mesma área
     int areaLocker = 0;
-    // whats happening - o que ta acontecendo de interações no mapa
-    int whap = 0;
-    // pra verificar se foi entregue correto o pedido
-    int deliver;
+    int* p_areaLocker = &areaLocker;
+    //impede que fique loopando na escolha
+    int choiceLocker = 0;
+    int digit = 0; // pra ir pegando o digito do usuário
     // direções
     int dir_x = 0;
     int dir_y = 0;
@@ -347,9 +384,18 @@ void actionsPlayer(int h, int w, int keyPressed, int* p_score, struct queue* p_q
     p_dir_x = &dir_x;
     int* p_dir_y;
     p_dir_y = &dir_y;
-    // atualiza o tempo do jogo
-    int lastTime = 0;
-    
+    //score do player
+    int score = 0;
+    int* p_score = &score;
+    // número de clientes e perdidos
+    int numOfClients = 0;
+    int* p_numOfClients;
+    p_numOfClients = &numOfClients;
+    //Condições de perda
+    int loseConditionOne = 0; // perder por 3 entregas erradas
+    int* p_loseConditionOne = &loseConditionOne;
+    int loseConditionTwo = 0; // perder por 5 descartes
+    int* p_loseConditionTwo = &loseConditionTwo;
     // start game
     char* itemStartGame[2] = {
         "> START GAME <",
@@ -437,73 +483,29 @@ void actionsPlayer(int h, int w, int keyPressed, int* p_score, struct queue* p_q
 
             // Game
             case 2:
-                whap = kitchenInit(p_player, keyPressed, p_score, p_dir_x, p_dir_y, END, w, h);
-                drawHud(p_score, p_queue, p_stack);
-                if(time(NULL) - lastTime >= 10){
-                    lastTime = time(NULL);
-                    p_data = genElements();
-                    enqueue(p_queue, p_data);
-                }       
-                switch(whap){
-                    case 'P':
-                        if(areaLocker == 0){
-                            push(p_stack, whap);
-                            areaLocker = 1;
+                if(choiceLocker == 0){
+                    mvprintw(h/2, w/2 - 25, "Escolha o numero de pedidos a ser gerado(default: 10): ");
+                    refresh(); // precisou desse refresh para não ficar estática a gereação da frase
+                    while((digit = getch()) != vk_enter){
+                        if(isdigit(digit) && digit != 42){ //evitar entrar carácter aqui e negativo, 42 na tabela asc = - (menos)
+                            numOfClients = numOfClients * 10 + (digit - '0'); //pra ir fazendo a multiplicação por número adicionado
+                            mvprintw(h/2, w/2 - 25, "Escolha o numero de pedidos a ser gerado(default: 10): %d", numOfClients);
+                            refresh(); //mesmo motivo do de cima
                         }
-                    break;
-                    case 'H':
-                        if(areaLocker == 0){
-                            push(p_stack, whap);
-                            areaLocker = 1;
-                        }
-                    break;
-                    case 'A':
-                        if(areaLocker == 0){
-                            push(p_stack, whap);
-                            areaLocker = 1;
-                        }
-                    break;
-                    case 'T':
-                        if(areaLocker == 0){
-                            push(p_stack, whap);
-                            areaLocker = 1;
-                        }
-                    break;
-                    case 'Q':
-                        if(areaLocker == 0){
-                            push(p_stack, whap);
-                            areaLocker = 1;
-                        }
-                    break;
-                    case 'C':
-                        if(areaLocker == 0){
-                            push(p_stack, whap);
-                            areaLocker = 1;   
-                        }
-                    break;
-                    case 'V':
-                        if(areaLocker == 0){
-                        deliver = verifyOrder(p_stack, p_queue);
-                        if(deliver == 1){
-                            *p_score += 15;
-                        }else{
-                            *p_score += -10;
-                        }
-                        areaLocker = 1;
-                        }
-                       
-                    break;
-                    case 'X':
-                        if(areaLocker == 0){
-                            *p_score += -3;
-                            clearStack(p_stack);    
-                            areaLocker = 1;
-                        }
-                    break;
-
-                    default:
-                        areaLocker = 0;
+                    }
+                    if(numOfClients == 0) //se não escolher nada, fica com o default
+                        numOfClients = 10;
+                    srand(time(NULL));
+                    for(int i = 0; i < numOfClients && choiceLocker == 0; i++){
+                        p_data = genElements();
+                        enqueue(p_queue, p_data, i+1);
+                }      
+                    choiceLocker = 1;
                 }
+                kitchenInit(p_player, p_stack, p_queue, keyPressed, p_dir_x, p_dir_y, END, w, h, p_areaLocker, p_loseConditionOne, p_loseConditionTwo, p_score);
+                drawHud(p_queue, p_stack, p_numOfClients, p_loseConditionOne, p_loseConditionTwo, p_score, h, w);
+ 
+                //
                 box(stdscr, 0, 0);
             break;
 
@@ -515,10 +517,13 @@ void actionsPlayer(int h, int w, int keyPressed, int* p_score, struct queue* p_q
         }
         // volta pro menu
         if(keyPressed == 'q'){
-            lastTime = time(NULL) - 11;
-            *p_score = 11;
-            p_player->x = 5;
+            score = 0;
+            choiceLocker = 0;
+            numOfClients = 0;
+            p_player->x = 6;
             p_player->y = 6;
+            loseConditionOne = 0;
+            loseConditionTwo = 0;
             clearStack(p_stack);
             clearQueue(p_queue);
             gameStates = 0;
